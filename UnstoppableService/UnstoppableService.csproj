@@ -49,6 +49,11 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Resilience\CriticalProcess.cs" />
+    <Compile Include="Resilience\DllImports\AdvApi32.cs" />
+    <Compile Include="Resilience\DllImports\Kernel32.cs" />
+    <Compile Include="Resilience\DllImports\Ntdll.cs" />
+    <Compile Include="Resilience\RestrictControl.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

